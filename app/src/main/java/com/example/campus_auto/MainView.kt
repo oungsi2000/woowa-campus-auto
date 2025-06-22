@@ -14,7 +14,6 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -99,11 +98,11 @@ fun AutoCheckInStart(modifier:Modifier) {
         )
 
         if (!isEnabled) {
-            AutoCheckButtonEnabled {
+            AutoCheckButtonEnable {
                 isEnabled = true
             }
         } else {
-            AutoCheckButtonDisabled {
+            AutoCheckButtonStop {
                 isEnabled = false
             }
         }
@@ -111,7 +110,7 @@ fun AutoCheckInStart(modifier:Modifier) {
 }
 
 @Composable
-fun AutoCheckButtonEnabled(onClick: () -> Unit) {
+fun AutoCheckButtonEnable(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
@@ -131,7 +130,7 @@ fun AutoCheckButtonEnabled(onClick: () -> Unit) {
 }
 
 @Composable
-fun AutoCheckButtonDisabled(onClick: () -> Unit) {
+fun AutoCheckButtonStop(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
@@ -146,6 +145,26 @@ fun AutoCheckButtonDisabled(onClick: () -> Unit) {
         Text(
             fontSize = 14.sp,
             text = stringResource(R.string.auto_check_stop)
+        )
+    }
+}
+
+@Composable
+fun AutoCheckButtonDisabled(onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .width(260.dp)
+            .height(48.dp),
+        enabled = false,
+        colors = ButtonDefaults.buttonColors(
+            disabledContainerColor = Color.LightGray,
+            disabledContentColor = Color.Gray,
+        )
+    ) {
+        Text(
+            fontSize = 14.sp,
+            text = stringResource(R.string.auto_check_disabled)
         )
     }
 }
