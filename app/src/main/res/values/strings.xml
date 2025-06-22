@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">campus-auto</string>
+    <string name="topbar_text">우아한테크코스</string>
+    <string name="description_auto_check">자동으로 등/하교를 기록합니다</string>
+    <string name="auto_check_start">자동등교 시작</string>
+    <string name="auto_check_stop">자동등교 해제</string>
+    <string name="can_check_in">현재 등/하교가 가능합니다</string>
+    <string name="cannot_check_in">현재 등/하교가 불가능합니다</string>
+    <string name="tool_current_ip">현재 IP : 192.168.0.1</string>
 </resources>
