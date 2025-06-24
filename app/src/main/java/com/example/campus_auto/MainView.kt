@@ -1,6 +1,7 @@
 package com.example.campus_auto
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,9 +30,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +44,7 @@ import com.example.campus_auto.ui.theme.Primary
 import com.example.campus_auto.ui.theme.PrimaryDanger
 import com.example.campus_auto.ui.theme.Secondary
 import com.example.campus_auto.ui.theme.SecondaryDanger
+import kotlinx.coroutines.flow.collectLatest
 
 
 @Preview(showBackground = true)
@@ -56,6 +62,7 @@ fun MainView(viewModel: MainViewModel = viewModel()) {
         ) { innerPadding ->
             MainBackground()
             AutoCheckInStart(
+                viewModel = viewModel,
                 modifier = Modifier
                     .padding(innerPadding)
             )
@@ -79,14 +86,14 @@ fun TopBar() {
 }
 
 @Composable
-fun AutoCheckInStart(modifier:Modifier) {
+fun AutoCheckInStart(viewModel: MainViewModel, modifier: Modifier) {
     var isEnabled by remember { mutableStateOf(false) }
+    val hasAllPermission by viewModel.hasAllPermission.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .offset(y = (-100).dp)
-        ,
+            .offset(y = (-100).dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -96,6 +103,12 @@ fun AutoCheckInStart(modifier:Modifier) {
             modifier = Modifier.padding(16.dp),
             text = stringResource(R.string.description_auto_check),
         )
+
+        if (!hasAllPermission) {
+            AutoCheckButtonDisabled()
+            GoToSettingButton(viewModel)
+            return
+        }
 
         if (!isEnabled) {
             AutoCheckButtonEnable {
@@ -150,9 +163,9 @@ fun AutoCheckButtonStop(onClick: () -> Unit) {
 }
 
 @Composable
-fun AutoCheckButtonDisabled(onClick: () -> Unit) {
+fun AutoCheckButtonDisabled() {
     Button(
-        onClick = onClick,
+        onClick = {},
         modifier = Modifier
             .width(260.dp)
             .height(48.dp),
@@ -170,7 +183,6 @@ fun AutoCheckButtonDisabled(onClick: () -> Unit) {
 }
 
 
-
 @Composable
 fun MainBackground() {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -179,8 +191,7 @@ fun MainBackground() {
             contentDescription = "background",
             modifier = Modifier
                 .scale(2f)
-                .offset(x = 100.dp, y = 300.dp)
-            ,
+                .offset(x = 100.dp, y = 300.dp),
             contentScale = ContentScale.Crop
         )
     }
@@ -203,7 +214,7 @@ fun BottomNetWorkEnabled() {
         containerColor = Color.Secondary,
         modifier = Modifier.height(72.dp)
     ) {
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
@@ -227,7 +238,7 @@ fun BottomNetWorkDisabled() {
         containerColor = Color.SecondaryDanger,
         modifier = Modifier.height(72.dp)
     ) {
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
@@ -243,4 +254,19 @@ fun BottomNetWorkDisabled() {
             )
         }
     }
+}
+
+@Composable
+fun GoToSettingButton(viewModel: MainViewModel) {
+    Text(
+        text = "권한을 설정하러 가볼까요?",
+        textDecoration = TextDecoration.Underline,
+        modifier = Modifier
+            .padding(12.dp)
+            .clickable {
+                viewModel.setPermission()
+            }
+        ,
+        color = Color.Gray
+    )
 }
