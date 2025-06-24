@@ -1,5 +1,8 @@
 package com.example.campus_auto
 
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +19,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -24,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,14 +52,20 @@ import com.example.campus_auto.ui.theme.Primary
 import com.example.campus_auto.ui.theme.PrimaryDanger
 import com.example.campus_auto.ui.theme.Secondary
 import com.example.campus_auto.ui.theme.SecondaryDanger
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 @Preview(showBackground = true)
 @Composable
-fun MainView(viewModel: MainViewModel = viewModel()) {
+fun MainView(
+    viewModel: MainViewModel = viewModel()
+) {
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    PermissionLauncher(snackBarHostState)
     CampusautoTheme {
         Scaffold(
+            snackbarHost = { SnackbarHost(snackBarHostState) },
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopBar()
@@ -66,6 +80,30 @@ fun MainView(viewModel: MainViewModel = viewModel()) {
                 modifier = Modifier
                     .padding(innerPadding)
             )
+        }
+    }
+}
+
+@Composable
+fun PermissionLauncher(snackBarHostState: SnackbarHostState) {
+    val coroutineScope = rememberCoroutineScope()
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            coroutineScope.launch {
+                snackBarHostState.showSnackbar(
+                    message = "권한을 설정하지 않으면 서비스 이용이 불가능합니다",
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 }
@@ -264,9 +302,8 @@ fun GoToSettingButton(viewModel: MainViewModel) {
         modifier = Modifier
             .padding(12.dp)
             .clickable {
-                viewModel.setPermission()
-            }
-        ,
+                viewModel.setAccessibilityPermission()
+            },
         color = Color.Gray
     )
 }
