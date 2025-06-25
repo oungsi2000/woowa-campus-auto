@@ -46,9 +46,6 @@ class MainActivity : ComponentActivity() {
 
             MainView(viewModel)
         }
-
-        viewModel.setConnectionInfo()
-
     }
 
     override fun onResume() {

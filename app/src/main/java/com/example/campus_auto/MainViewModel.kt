@@ -36,6 +36,10 @@ class MainViewModel(
     private var _hasAccessibilityPermission = false
     private var _hasPostNotificationPermission = false
 
+    init {
+        setConnectionInfo()
+    }
+
     fun publishPermissionEvent() {
         viewModelScope.launch {
             if (!_hasAccessibilityPermission) {
