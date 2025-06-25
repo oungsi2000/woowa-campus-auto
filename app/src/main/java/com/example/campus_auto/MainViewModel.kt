@@ -1,6 +1,7 @@
 package com.example.campus_auto
 
 import android.net.LinkProperties
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.campus_auto.data.repository.ConnectionInfoRepository
@@ -28,11 +29,14 @@ class MainViewModel(
     private val _loadingState = MutableStateFlow(LoadingState.Loading)
     val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
 
-    private var _hasAccessibilityPermission = false
-    private var _hasPostNotificationPermission = false
+    private val _isServiceEnabled = MutableStateFlow(false)
+    val isServiceEnabled: StateFlow<Boolean> = _isServiceEnabled.asStateFlow()
 
     private val _event = MutableSharedFlow<MainEvent>()
     val event: SharedFlow<MainEvent> = _event.asSharedFlow()
+
+    private var _hasAccessibilityPermission = false
+    private var _hasPostNotificationPermission = false
 
     fun setAccessibilityPermission() {
         viewModelScope.launch {
@@ -68,6 +72,12 @@ class MainViewModel(
                 hasAccessibilityPermission
                         && hasPostNotificationPermission
             )
+        }
+    }
+
+    fun toggleService() {
+        viewModelScope.launch {
+            _isServiceEnabled.emit(!_isServiceEnabled.value)
         }
     }
 

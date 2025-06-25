@@ -156,7 +156,7 @@ fun TopBar() {
 
 @Composable
 fun AutoCheckInStart(viewModel: MainViewModel, modifier: Modifier) {
-    var isEnabled by remember { mutableStateOf(false) }
+    val isEnabled by viewModel.isServiceEnabled.collectAsState()
     val hasAllPermission by viewModel.hasAllPermission.collectAsState()
 
     Column(
@@ -181,11 +181,11 @@ fun AutoCheckInStart(viewModel: MainViewModel, modifier: Modifier) {
 
         if (!isEnabled) {
             AutoCheckButtonEnable {
-                isEnabled = true
+                viewModel.toggleService()
             }
         } else {
             AutoCheckButtonStop {
-                isEnabled = false
+                viewModel.toggleService()
             }
         }
     }
@@ -264,7 +264,7 @@ fun MainBackground(viewModel: MainViewModel) {
         Modifier
             .pullRefresh(pullRefreshState)
     ) {
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
