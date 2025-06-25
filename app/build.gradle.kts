@@ -16,6 +16,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "AVAILABLE_IP_ADDRESS", "\"183.97.210.249\"")
     }
 
     buildTypes {
@@ -35,6 +36,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }

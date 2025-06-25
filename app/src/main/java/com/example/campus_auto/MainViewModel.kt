@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.campus_auto.data.repository.ConnectionInfoRepository
 import com.example.campus_auto.data.repository.ConnectionInfoRepositoryImpl
+import com.example.campus_auto.domain.AvailableIp
 import com.example.campus_auto.uimodel.ConnectionInfo
 import com.example.campus_auto.uimodel.LoadingState
 import kotlinx.coroutines.CoroutineScope
@@ -54,10 +55,14 @@ class MainViewModel(
 
     fun setConnectionInfo() {
         viewModelScope.launchLoadable {
+            val ipAddress = connectionInfoRepository.ipAddress().getOrNull()
+
             _connectionInfo.emit(
                 ConnectionInfo(
-                    connectionInfoRepository.ipAddress().getOrNull(),
-                    true
+                    ipAddress,
+                    AvailableIp(
+                        BuildConfig.AVAILABLE_IP_ADDRESS
+                    ).isAvailable(ipAddress)
                 )
             )
         }
@@ -90,5 +95,4 @@ class MainViewModel(
             _loadingState.emit(LoadingState.Success)
         }
     }
-
 }
