@@ -63,8 +63,7 @@ import com.example.campus_auto.ui.theme.Primary
 import com.example.campus_auto.ui.theme.PrimaryDanger
 import com.example.campus_auto.ui.theme.Secondary
 import com.example.campus_auto.ui.theme.SecondaryDanger
-import com.example.campus_auto.uimodel.ConnectionInfo
-import kotlinx.coroutines.delay
+import com.example.campus_auto.uimodel.LoadingState
 import kotlinx.coroutines.launch
 
 
@@ -74,10 +73,10 @@ import kotlinx.coroutines.launch
 fun MainView(
     viewModel: MainViewModel = viewModel()
 ) {
-    val connectionInfo by viewModel.connectionInfo.collectAsState()
+    val state by viewModel.loadingState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    if (!connectionInfo.isLoaded) {
+    if (state == LoadingState.Loading) {
         TopBar()
         Loading()
         return
@@ -120,7 +119,6 @@ fun Loading() {
 @Composable
 fun PermissionLauncher(snackBarHostState: SnackbarHostState) {
     val coroutineScope = rememberCoroutineScope()
-
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -293,14 +291,14 @@ fun MainBackground(viewModel: MainViewModel) {
 @Composable
 fun BottomNetWorkBanner(viewModel: MainViewModel) {
     val connectionInfo by viewModel.connectionInfo.collectAsState()
-    val connectionName = connectionInfo?.ipAddress?.let {
+    val connectionName = connectionInfo.ipAddress?.let {
         stringResource(
             R.string.tool_current_ip,
             it
         )
     } ?: stringResource(R.string.no_network_connected)
 
-    if (connectionInfo?.isEnabled ?: false) {
+    if (connectionInfo.isEnabled) {
         BottomNetWorkEnabled(connectionName)
     } else {
         BottomNetWorkDisabled(connectionName)

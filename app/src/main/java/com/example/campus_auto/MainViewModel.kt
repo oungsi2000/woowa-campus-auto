@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.campus_auto.data.repository.ConnectionInfoRepository
 import com.example.campus_auto.data.repository.ConnectionInfoRepositoryImpl
 import com.example.campus_auto.uimodel.ConnectionInfo
+import com.example.campus_auto.uimodel.LoadingState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,6 +24,9 @@ class MainViewModel(
 
     private val _connectionInfo = MutableStateFlow(ConnectionInfo())
     val connectionInfo: StateFlow<ConnectionInfo> = _connectionInfo.asStateFlow()
+
+    private val _loadingState = MutableStateFlow(LoadingState.Loading)
+    val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
 
     private var _hasAccessibilityPermission = false
     private var _hasPostNotificationPermission = false
@@ -42,15 +47,9 @@ class MainViewModel(
     }
 
     fun setConnectionInfo() {
-        viewModelScope.launch {
+        viewModelScope.launchLoadable {
             _connectionInfo.emit(
                 ConnectionInfo(
-                    false
-                )
-            )
-            _connectionInfo.emit(
-                ConnectionInfo(
-                    true,
                     connectionInfoRepository.ipAddress().getOrNull(),
                     true
                 )
@@ -69,6 +68,14 @@ class MainViewModel(
                 hasAccessibilityPermission
                         && hasPostNotificationPermission
             )
+        }
+    }
+
+    private fun CoroutineScope.launchLoadable(block: suspend CoroutineScope.() -> Unit) {
+        launch {
+            _loadingState.emit(LoadingState.Loading)
+            block()
+            _loadingState.emit(LoadingState.Success)
         }
     }
 
