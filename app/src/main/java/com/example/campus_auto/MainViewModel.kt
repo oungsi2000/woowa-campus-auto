@@ -20,8 +20,8 @@ class MainViewModel(
     private val _hasAllPermission = MutableStateFlow(false)
     val hasAllPermission: StateFlow<Boolean> = _hasAllPermission.asStateFlow()
 
-    private val _connectionInfo = MutableStateFlow<ConnectionInfo>(ConnectionInfo())
-    val connectionInfo: StateFlow<ConnectionInfo> = _connectionInfo.asStateFlow()
+    private val _connectionInfo = MutableStateFlow<ConnectionInfo?>(null)
+    val connectionInfo: StateFlow<ConnectionInfo?> = _connectionInfo.asStateFlow()
 
     private var _hasAccessibilityPermission = false
     private var _hasPostNotificationPermission = false

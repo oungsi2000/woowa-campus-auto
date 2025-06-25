@@ -14,10 +14,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -62,7 +64,13 @@ import kotlinx.coroutines.launch
 fun MainView(
     viewModel: MainViewModel = viewModel()
 ) {
+    val connectionInfo by viewModel.connectionInfo.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
+
+    if (connectionInfo == null) {
+        Loading()
+        return
+    }
 
     PermissionLauncher(snackBarHostState)
     CampusautoTheme {
@@ -83,6 +91,18 @@ fun MainView(
                     .padding(innerPadding)
             )
         }
+    }
+}
+
+@Composable
+fun Loading() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(50.dp)
+        )
     }
 }
 
@@ -240,14 +260,14 @@ fun MainBackground() {
 @Composable
 fun BottomNetWorkBanner(viewModel: MainViewModel) {
     val connectionInfo by viewModel.connectionInfo.collectAsState()
-    val connectionName = connectionInfo.ipAddress?.let {
+    val connectionName = connectionInfo?.ipAddress?.let {
         stringResource(
             R.string.tool_current_ip,
             it
         )
     }?: stringResource(R.string.no_network_connected)
 
-    if (connectionInfo.isEnabled) {
+    if (connectionInfo?.isEnabled?:false) {
         BottomNetWorkEnabled(connectionName)
     } else {
         BottomNetWorkDisabled(connectionName)
