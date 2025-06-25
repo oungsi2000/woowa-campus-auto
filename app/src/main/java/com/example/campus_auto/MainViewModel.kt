@@ -1,7 +1,5 @@
 package com.example.campus_auto
 
-import android.net.LinkProperties
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.campus_auto.data.repository.ConnectionInfoRepository
@@ -38,7 +36,7 @@ class MainViewModel(
     private var _hasAccessibilityPermission = false
     private var _hasPostNotificationPermission = false
 
-    fun setAccessibilityPermission() {
+    fun publishPermissionEvent() {
         viewModelScope.launch {
             if (!_hasAccessibilityPermission) {
                 _event.emit(MainEvent.REQUEST_ACCESSIBILITY_PERMISSION)

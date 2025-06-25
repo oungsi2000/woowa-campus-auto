@@ -5,12 +5,10 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -361,7 +359,7 @@ fun GoToSettingButton(viewModel: MainViewModel) {
         modifier = Modifier
             .padding(12.dp)
             .clickable {
-                viewModel.setAccessibilityPermission()
+                viewModel.publishPermissionEvent()
             },
         color = Color.Gray
     )
