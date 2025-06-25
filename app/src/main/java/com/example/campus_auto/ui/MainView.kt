@@ -5,10 +5,12 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +18,12 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -56,9 +64,11 @@ import com.example.campus_auto.ui.theme.PrimaryDanger
 import com.example.campus_auto.ui.theme.Secondary
 import com.example.campus_auto.ui.theme.SecondaryDanger
 import com.example.campus_auto.uimodel.ConnectionInfo
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
 @Composable
 fun MainView(
@@ -67,7 +77,8 @@ fun MainView(
     val connectionInfo by viewModel.connectionInfo.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    if (connectionInfo == null) {
+    if (!connectionInfo.isLoaded) {
+        TopBar()
         Loading()
         return
     }
@@ -84,12 +95,12 @@ fun MainView(
                 BottomNetWorkBanner(viewModel)
             }
         ) { innerPadding ->
-            MainBackground()
             AutoCheckInStart(
                 viewModel = viewModel,
                 modifier = Modifier
                     .padding(innerPadding)
             )
+            MainBackground(viewModel)
         }
     }
 }
@@ -243,16 +254,38 @@ fun AutoCheckButtonDisabled() {
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainBackground() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(id = R.drawable.haengseoungee),
-            contentDescription = "background",
+fun MainBackground(viewModel: MainViewModel) {
+    var isRefreshing by remember { mutableStateOf(false) }
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, {
+        viewModel.setConnectionInfo()
+    })
+
+    Box(
+        Modifier
+            .pullRefresh(pullRefreshState)
+    ) {
+        Column (
             modifier = Modifier
-                .scale(2f)
-                .offset(x = 100.dp, y = 300.dp),
-            contentScale = ContentScale.Crop
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            Image(
+                painter = painterResource(id = R.drawable.haengseoungee),
+                contentDescription = "background",
+                modifier = Modifier
+                    .scale(2f)
+                    .offset(x = 100.dp, y = 300.dp),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
         )
     }
 }
@@ -265,9 +298,9 @@ fun BottomNetWorkBanner(viewModel: MainViewModel) {
             R.string.tool_current_ip,
             it
         )
-    }?: stringResource(R.string.no_network_connected)
+    } ?: stringResource(R.string.no_network_connected)
 
-    if (connectionInfo?.isEnabled?:false) {
+    if (connectionInfo?.isEnabled ?: false) {
         BottomNetWorkEnabled(connectionName)
     } else {
         BottomNetWorkDisabled(connectionName)

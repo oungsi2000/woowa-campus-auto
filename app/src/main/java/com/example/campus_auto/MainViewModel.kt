@@ -20,8 +20,8 @@ class MainViewModel(
     private val _hasAllPermission = MutableStateFlow(false)
     val hasAllPermission: StateFlow<Boolean> = _hasAllPermission.asStateFlow()
 
-    private val _connectionInfo = MutableStateFlow<ConnectionInfo?>(null)
-    val connectionInfo: StateFlow<ConnectionInfo?> = _connectionInfo.asStateFlow()
+    private val _connectionInfo = MutableStateFlow(ConnectionInfo())
+    val connectionInfo: StateFlow<ConnectionInfo> = _connectionInfo.asStateFlow()
 
     private var _hasAccessibilityPermission = false
     private var _hasPostNotificationPermission = false
@@ -45,6 +45,12 @@ class MainViewModel(
         viewModelScope.launch {
             _connectionInfo.emit(
                 ConnectionInfo(
+                    false
+                )
+            )
+            _connectionInfo.emit(
+                ConnectionInfo(
+                    true,
                     connectionInfoRepository.ipAddress().getOrNull(),
                     true
                 )
