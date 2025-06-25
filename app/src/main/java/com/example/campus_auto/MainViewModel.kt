@@ -45,7 +45,7 @@ class MainViewModel(
         viewModelScope.launch {
             _connectionInfo.emit(
                 ConnectionInfo(
-                    connectionInfoRepository.ipAddress().getOrThrow(),
+                    connectionInfoRepository.ipAddress().getOrNull(),
                     true
                 )
             )
