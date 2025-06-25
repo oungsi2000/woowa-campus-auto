@@ -31,6 +31,9 @@ class MainViewModel(
     private val _isServiceEnabled = MutableStateFlow(false)
     val isServiceEnabled: StateFlow<Boolean> = _isServiceEnabled.asStateFlow()
 
+    private val _isAppInstalled = MutableStateFlow(false)
+    val isAppInstalled: StateFlow<Boolean> = _isAppInstalled.asStateFlow()
+
     private val _event = MutableSharedFlow<MainEvent>()
     val event: SharedFlow<MainEvent> = _event.asSharedFlow()
 
@@ -79,6 +82,12 @@ class MainViewModel(
                 hasAccessibilityPermission
                         && hasPostNotificationPermission
             )
+        }
+    }
+
+    fun setAppInstalledState(isAppInstalled: Boolean) {
+        viewModelScope.launch {
+            _isAppInstalled.emit(isAppInstalled)
         }
     }
 

@@ -17,6 +17,7 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "AVAILABLE_IP_ADDRESS", "\"183.97.210.249\"")
+        buildConfigField("String", "CAMPUS_PACKAGE_NAME", "\"woowacourse.campus\"")
     }
 
     buildTypes {

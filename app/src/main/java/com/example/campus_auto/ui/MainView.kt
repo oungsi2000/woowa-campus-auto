@@ -157,6 +157,7 @@ fun TopBar() {
 fun AutoCheckInStart(viewModel: MainViewModel, modifier: Modifier, snackBarHostState: SnackbarHostState) {
     val isEnabled by viewModel.isServiceEnabled.collectAsState()
     val hasAllPermission by viewModel.hasAllPermission.collectAsState()
+    val isAppInstalled by viewModel.isAppInstalled.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -172,6 +173,12 @@ fun AutoCheckInStart(viewModel: MainViewModel, modifier: Modifier, snackBarHostS
             modifier = Modifier.padding(16.dp),
             text = stringResource(R.string.description_auto_check),
         )
+
+        if (!isAppInstalled) {
+            AutoCheckButtonDisabled()
+            NotifyAppNotInstalled(viewModel)
+            return
+        }
 
         if (!hasAllPermission) {
             AutoCheckButtonDisabled()
@@ -371,6 +378,17 @@ fun GoToSettingButton(viewModel: MainViewModel) {
             .clickable {
                 viewModel.publishPermissionEvent()
             },
+        color = Color.Gray
+    )
+}
+
+@Composable
+fun NotifyAppNotInstalled(viewModel: MainViewModel) {
+    Text(
+        text = "캠퍼스 앱을 찾을 수 없어요...",
+        textDecoration = TextDecoration.Underline,
+        modifier = Modifier
+            .padding(12.dp),
         color = Color.Gray
     )
 }

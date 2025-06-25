@@ -2,6 +2,7 @@ package com.example.campus_auto
 
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
@@ -21,6 +22,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        checkAppInstalled()
         setContent {
             LaunchedEffect(Unit) {
                 viewModel.event.collectLatest {
@@ -38,12 +40,10 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-
                         MainEvent.RUNNING -> Unit
                     }
                 }
             }
-
             MainView(viewModel)
         }
     }
@@ -54,6 +54,16 @@ class MainActivity : ComponentActivity() {
             hasAccessibilityPermission = hasAccessibilityPermission(),
             hasPostNotificationPermission = hasPostNotificationPermission(),
         )
+    }
+
+    private fun checkAppInstalled() {
+        runCatching {
+            packageManager.getPackageInfo(BuildConfig.CAMPUS_PACKAGE_NAME, PackageManager.GET_ACTIVITIES)
+        }.onSuccess {
+            viewModel.setAppInstalledState(true)
+        }.onFailure {
+            viewModel.setAppInstalledState(false)
+        }
     }
 
 
