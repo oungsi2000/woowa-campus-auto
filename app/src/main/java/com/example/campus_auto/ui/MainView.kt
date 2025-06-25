@@ -92,12 +92,12 @@ fun MainView(
                 BottomNetWorkBanner(viewModel)
             }
         ) { innerPadding ->
+            MainBackground(viewModel)
             AutoCheckInStart(
                 viewModel = viewModel,
                 modifier = Modifier
                     .padding(innerPadding)
             )
-            MainBackground(viewModel)
         }
     }
 }
