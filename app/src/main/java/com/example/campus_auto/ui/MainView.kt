@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Snackbar
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -62,6 +63,7 @@ import com.example.campus_auto.ui.theme.PrimaryDanger
 import com.example.campus_auto.ui.theme.Secondary
 import com.example.campus_auto.ui.theme.SecondaryDanger
 import com.example.campus_auto.uimodel.LoadingState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -96,7 +98,8 @@ fun MainView(
             AutoCheckInStart(
                 viewModel = viewModel,
                 modifier = Modifier
-                    .padding(innerPadding)
+                    .padding(innerPadding),
+                snackBarHostState = snackBarHostState
             )
         }
     }
@@ -121,12 +124,10 @@ fun PermissionLauncher(snackBarHostState: SnackbarHostState) {
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (!isGranted) {
-            coroutineScope.launch {
-                snackBarHostState.showSnackbar(
-                    message = "권한을 설정하지 않으면 서비스 이용이 불가능합니다",
-                    duration = SnackbarDuration.Short
-                )
-            }
+            coroutineScope.showSnackBar(
+                text = "권한을 설정하지 않으면 서비스 이용이 불가능합니다",
+                snackBarHostState
+            )
         }
     }
 
@@ -153,9 +154,10 @@ fun TopBar() {
 }
 
 @Composable
-fun AutoCheckInStart(viewModel: MainViewModel, modifier: Modifier) {
+fun AutoCheckInStart(viewModel: MainViewModel, modifier: Modifier, snackBarHostState: SnackbarHostState) {
     val isEnabled by viewModel.isServiceEnabled.collectAsState()
     val hasAllPermission by viewModel.hasAllPermission.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -180,10 +182,18 @@ fun AutoCheckInStart(viewModel: MainViewModel, modifier: Modifier) {
         if (!isEnabled) {
             AutoCheckButtonEnable {
                 viewModel.toggleService()
+                coroutineScope.showSnackBar(
+                    text = "자동등교가 활성화되었습니다",
+                    snackBarHostState
+                )
             }
         } else {
             AutoCheckButtonStop {
                 viewModel.toggleService()
+                coroutineScope.showSnackBar(
+                    text = "자동등교가 비활성화되었습니다",
+                    snackBarHostState
+                )
             }
         }
     }
@@ -363,4 +373,17 @@ fun GoToSettingButton(viewModel: MainViewModel) {
             },
         color = Color.Gray
     )
+}
+
+fun CoroutineScope.showSnackBar(
+    text:String,
+    snackBarHostState: SnackbarHostState
+) {
+    launch {
+        snackBarHostState.currentSnackbarData?.dismiss()
+        snackBarHostState.showSnackbar(
+            message = text,
+            duration = SnackbarDuration.Short
+        )
+    }
 }
