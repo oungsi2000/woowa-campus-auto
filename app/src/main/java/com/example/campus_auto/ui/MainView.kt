@@ -1,5 +1,6 @@
-package com.example.campus_auto
+package com.example.campus_auto.ui
 
+import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,7 +20,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -38,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,10 +47,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.campus_auto.ui.theme.CampusautoTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.campus_auto.MainViewModel
+import com.example.campus_auto.R
 import com.example.campus_auto.ui.theme.Primary
 import com.example.campus_auto.ui.theme.PrimaryDanger
 import com.example.campus_auto.ui.theme.Secondary
 import com.example.campus_auto.ui.theme.SecondaryDanger
+import com.example.campus_auto.uimodel.ConnectionInfo
 import kotlinx.coroutines.launch
 
 
@@ -71,7 +73,7 @@ fun MainView(
                 TopBar()
             },
             bottomBar = {
-                BottomNetWorkBanner()
+                BottomNetWorkBanner(viewModel)
             }
         ) { innerPadding ->
             MainBackground()
@@ -103,7 +105,7 @@ fun PermissionLauncher(snackBarHostState: SnackbarHostState) {
 
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 }
@@ -236,18 +238,24 @@ fun MainBackground() {
 }
 
 @Composable
-fun BottomNetWorkBanner() {
-    var isEnabled by remember { mutableStateOf(false) }
+fun BottomNetWorkBanner(viewModel: MainViewModel) {
+    val connectionInfo by viewModel.connectionInfo.collectAsState()
+    val connectionName = connectionInfo.ipAddress?.let {
+        stringResource(
+            R.string.tool_current_ip,
+            it
+        )
+    }?: stringResource(R.string.no_network_connected)
 
-    if (isEnabled) {
-        BottomNetWorkEnabled()
+    if (connectionInfo.isEnabled) {
+        BottomNetWorkEnabled(connectionName)
     } else {
-        BottomNetWorkDisabled()
+        BottomNetWorkDisabled(connectionName)
     }
 }
 
 @Composable
-fun BottomNetWorkEnabled() {
+fun BottomNetWorkEnabled(connectionName: String) {
     BottomAppBar(
         containerColor = Color.Secondary,
         modifier = Modifier.height(72.dp)
@@ -259,7 +267,7 @@ fun BottomNetWorkEnabled() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = stringResource(R.string.tool_current_ip),
+                text = connectionName,
                 color = Color.Black,
             )
             Text(
@@ -271,7 +279,7 @@ fun BottomNetWorkEnabled() {
 }
 
 @Composable
-fun BottomNetWorkDisabled() {
+fun BottomNetWorkDisabled(connectionName: String) {
     BottomAppBar(
         containerColor = Color.SecondaryDanger,
         modifier = Modifier.height(72.dp)
@@ -283,7 +291,7 @@ fun BottomNetWorkDisabled() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = stringResource(R.string.tool_current_ip),
+                text = connectionName,
                 color = Color.Black,
             )
             Text(

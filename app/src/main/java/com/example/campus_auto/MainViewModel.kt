@@ -1,20 +1,27 @@
 package com.example.campus_auto
 
-import androidx.activity.compose.rememberLauncherForActivityResult
+import android.net.LinkProperties
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.campus_auto.data.repository.ConnectionInfoRepository
+import com.example.campus_auto.data.repository.ConnectionInfoRepositoryImpl
+import com.example.campus_auto.uimodel.ConnectionInfo
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
+class MainViewModel(
+    private val connectionInfoRepository: ConnectionInfoRepository = ConnectionInfoRepositoryImpl.default()
+) : ViewModel() {
     private val _hasAllPermission = MutableStateFlow(false)
     val hasAllPermission: StateFlow<Boolean> = _hasAllPermission.asStateFlow()
+
+    private val _connectionInfo = MutableStateFlow<ConnectionInfo>(ConnectionInfo())
+    val connectionInfo: StateFlow<ConnectionInfo> = _connectionInfo.asStateFlow()
 
     private var _hasAccessibilityPermission = false
     private var _hasPostNotificationPermission = false
@@ -34,14 +41,28 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun setConnectionInfo() {
+        viewModelScope.launch {
+            _connectionInfo.emit(
+                ConnectionInfo(
+                    connectionInfoRepository.ipAddress().getOrThrow(),
+                    true
+                )
+            )
+        }
+    }
+
     fun setPermissionState(
         hasAccessibilityPermission: Boolean,
-        hasPostNotificationPermission: Boolean
+        hasPostNotificationPermission: Boolean,
     ) {
         viewModelScope.launch {
             _hasAccessibilityPermission = hasAccessibilityPermission
             _hasPostNotificationPermission = hasPostNotificationPermission
-            _hasAllPermission.emit(hasAccessibilityPermission && hasPostNotificationPermission)
+            _hasAllPermission.emit(
+                hasAccessibilityPermission
+                        && hasPostNotificationPermission
+            )
         }
     }
 

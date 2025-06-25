@@ -6,17 +6,13 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.app.NotificationManagerCompat
+import com.example.campus_auto.ui.MainView
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
@@ -47,17 +43,22 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+
             MainView(viewModel)
         }
+
+        viewModel.setConnectionInfo()
+
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.setPermissionState(
             hasAccessibilityPermission = hasAccessibilityPermission(),
-            hasPostNotificationPermission = hasPostNotificationPermission()
+            hasPostNotificationPermission = hasPostNotificationPermission(),
         )
     }
+
 
     private fun hasAccessibilityPermission(): Boolean {
         val accessibilityManager = getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
