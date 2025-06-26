@@ -9,6 +9,7 @@ import com.example.campus_auto.data.repository.ConnectionInfoRepository
 import com.example.campus_auto.data.repository.ConnectionInfoRepositoryImpl
 import com.example.campus_auto.data.repository.ServiceScheduleRepository
 import com.example.campus_auto.domain.AvailableIp
+import com.example.campus_auto.ext.combineLoadingState
 import com.example.campus_auto.uimodel.ConnectionInfo
 import com.example.campus_auto.uimodel.LoadingState
 import kotlinx.coroutines.CoroutineScope
@@ -40,18 +41,10 @@ class MainViewModel(
     private val _connectionLoadingState = MutableStateFlow(LoadingState.Loading)
     private val _serviceLoadingState = MutableStateFlow(LoadingState.Loading)
 
-    val loadingState: StateFlow<LoadingState> = _connectionLoadingState.combine(
-        _serviceLoadingState
-    ) { connection, service ->
-        if (connection == LoadingState.Loading || service == LoadingState.Loading) {
-            LoadingState.Loading
-        } else {
-            LoadingState.Success
-        }
-    }.stateIn(
+    val loadingState: StateFlow<LoadingState> = combineLoadingState(
         viewModelScope,
-        SharingStarted.Eagerly,
-        LoadingState.Loading
+        _serviceLoadingState,
+        _connectionLoadingState
     )
 
     private val _isServiceEnabled = MutableStateFlow(false)
