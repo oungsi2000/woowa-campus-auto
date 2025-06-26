@@ -9,7 +9,10 @@ import com.example.campus_auto.data.repository.ConnectionInfoRepository
 import com.example.campus_auto.data.repository.ConnectionInfoRepositoryImpl
 import com.example.campus_auto.data.repository.ServiceScheduleRepository
 import com.example.campus_auto.domain.AvailableIp
+import com.example.campus_auto.domain.ServicePeriod
 import com.example.campus_auto.ext.combineLoadingState
+import com.example.campus_auto.ext.toUiModel
+import com.example.campus_auto.uimodel.AlarmTime
 import com.example.campus_auto.uimodel.ConnectionInfo
 import com.example.campus_auto.uimodel.LoadingState
 import kotlinx.coroutines.CoroutineScope
@@ -38,15 +41,6 @@ class MainViewModel(
     private val _connectionInfo = MutableStateFlow(ConnectionInfo())
     val connectionInfo: StateFlow<ConnectionInfo> = _connectionInfo.asStateFlow()
 
-    private val _connectionLoadingState = MutableStateFlow(LoadingState.Loading)
-    private val _serviceLoadingState = MutableStateFlow(LoadingState.Loading)
-
-    val loadingState: StateFlow<LoadingState> = combineLoadingState(
-        viewModelScope,
-        _serviceLoadingState,
-        _connectionLoadingState
-    )
-
     private val _isServiceEnabled = MutableStateFlow(false)
     val isServiceEnabled: StateFlow<Boolean> = _isServiceEnabled.asStateFlow()
 
@@ -55,6 +49,18 @@ class MainViewModel(
 
     private val _event = MutableSharedFlow<MainEvent>()
     val event: SharedFlow<MainEvent> = _event.asSharedFlow()
+
+    private val _alarmTime = MutableStateFlow(ServicePeriod.of().toUiModel())
+    val alarmTime: StateFlow<AlarmTime> = _alarmTime.asStateFlow()
+
+    private val _connectionLoadingState = MutableStateFlow(LoadingState.Loading)
+    private val _serviceLoadingState = MutableStateFlow(LoadingState.Loading)
+
+    val loadingState: StateFlow<LoadingState> = combineLoadingState(
+        viewModelScope,
+        _serviceLoadingState,
+        _connectionLoadingState
+    )
 
     private var _hasAccessibilityPermission = false
     private var _hasPostNotificationPermission = false
