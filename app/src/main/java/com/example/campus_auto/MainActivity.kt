@@ -1,6 +1,7 @@
 package com.example.campus_auto
 
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.app.AlarmManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -14,10 +15,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.core.app.NotificationManagerCompat
 import com.example.campus_auto.ui.MainView
 import kotlinx.coroutines.flow.collectLatest
+import java.util.Calendar
 
 
 class MainActivity : ComponentActivity() {
-    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels { MainViewModel.factory() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +42,12 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                        MainEvent.START_SERVICE -> {
+
+                        }
+                        MainEvent.STOP_SERVICE -> {
+
+                        }
                         MainEvent.RUNNING -> Unit
                     }
                 }
@@ -55,6 +63,22 @@ class MainActivity : ComponentActivity() {
             hasPostNotificationPermission = hasPostNotificationPermission(),
         )
     }
+
+//    private fun scheduleAlarm() {
+//        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+//        val calendar = Calendar.getInstance().apply {
+//            timeInMillis = System.currentTimeMillis()
+//            set(Calendar.HOUR_OF_DAY, hour)
+//            set(Calendar.MINUTE, minute)
+//            set(Calendar.SECOND, 0)
+//            set(Calendar.MILLISECOND, 0)
+//        }
+//        alarmManager.set(
+//            AlarmManager.RTC_WAKEUP,
+//            calendar.timeInMillis,
+//            AlarmReceiver.getPendingIntent(this)
+//        )
+//    }
 
     private fun checkAppInstalled() {
         runCatching {
