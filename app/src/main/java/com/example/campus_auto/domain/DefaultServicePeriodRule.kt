@@ -4,11 +4,11 @@ import java.time.LocalTime
 
 class DefaultServicePeriodRule : ServicePeriodRule {
     override val startTimeWhenGetOnWork: LocalTime
-        get() = LocalTime.of(8, 0)
+        get() = LocalTime.of(21, 0)
     override val endTimeWhenGetOnWork: LocalTime
-        get() = LocalTime.of(10, 30)
+        get() = LocalTime.of(21, 30)
     override val startTimeWhenGetOffWork: LocalTime
-        get() = LocalTime.of(18, 0)
+        get() = LocalTime.of(23, 0)
     override val endTimeWhenGetOffWork: LocalTime
-        get() = LocalTime.of(18, 30)
+        get() = LocalTime.of(23, 30)
 }

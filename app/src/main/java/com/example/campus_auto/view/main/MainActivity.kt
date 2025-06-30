@@ -1,4 +1,4 @@
-package com.example.campus_auto
+package com.example.campus_auto.view.main
 
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.AlarmManager
@@ -13,9 +13,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.app.NotificationManagerCompat
+import com.example.campus_auto.BuildConfig
+import com.example.campus_auto.view.background.CampusAutoAlarmReceiver
+import com.example.campus_auto.ext.toEpochMilli
 import com.example.campus_auto.ui.MainView
 import kotlinx.coroutines.flow.collectLatest
-import java.util.Calendar
 
 
 class MainActivity : ComponentActivity() {
@@ -42,12 +44,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                        MainEvent.START_SERVICE -> {
-
-                        }
-                        MainEvent.STOP_SERVICE -> {
-
-                        }
+                        MainEvent.START_SERVICE -> scheduleAlarm()
+                        MainEvent.STOP_SERVICE -> cancelAlarm()
                         MainEvent.RUNNING -> Unit
                     }
                 }
@@ -64,21 +62,21 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-//    private fun scheduleAlarm() {
-//        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-//        val calendar = Calendar.getInstance().apply {
-//            timeInMillis = System.currentTimeMillis()
-//            set(Calendar.HOUR_OF_DAY, hour)
-//            set(Calendar.MINUTE, minute)
-//            set(Calendar.SECOND, 0)
-//            set(Calendar.MILLISECOND, 0)
-//        }
-//        alarmManager.set(
-//            AlarmManager.RTC_WAKEUP,
-//            calendar.timeInMillis,
-//            AlarmReceiver.getPendingIntent(this)
-//        )
-//    }
+    private fun scheduleAlarm() {
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        val triggerTime = viewModel.startTime.triggerTime
+
+        alarmManager.set(
+            AlarmManager.RTC_WAKEUP,
+            triggerTime.toEpochMilli(),
+            CampusAutoAlarmReceiver.pendingIntent(this)
+        )
+    }
+
+    private fun cancelAlarm() {
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(CampusAutoAlarmReceiver.pendingIntent(this))
+    }
 
     private fun checkAppInstalled() {
         runCatching {

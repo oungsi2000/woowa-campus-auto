@@ -1,4 +1,4 @@
-package com.example.campus_auto
+package com.example.campus_auto.view.background
 
 import android.app.Application
 import android.content.SharedPreferences

@@ -1,4 +1,4 @@
-package com.example.campus_auto
+package com.example.campus_auto.view.main
 
 enum class MainEvent {
     REQUEST_ACCESSIBILITY_PERMISSION,

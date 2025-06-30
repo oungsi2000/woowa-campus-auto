@@ -1,35 +1,29 @@
-package com.example.campus_auto
+package com.example.campus_auto.view.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.campus_auto.BuildConfig
+import com.example.campus_auto.view.background.CampusAutoApplication
 import com.example.campus_auto.data.repository.ConnectionInfoRepository
-import com.example.campus_auto.data.repository.ConnectionInfoRepositoryImpl
 import com.example.campus_auto.data.repository.ServiceScheduleRepository
 import com.example.campus_auto.domain.AvailableIp
 import com.example.campus_auto.domain.ServicePeriod
 import com.example.campus_auto.ext.combineLoadingState
-import com.example.campus_auto.ext.toUiModel
+import com.example.campus_auto.ext.alarmTime
 import com.example.campus_auto.uimodel.AlarmTime
 import com.example.campus_auto.uimodel.ConnectionInfo
 import com.example.campus_auto.uimodel.LoadingState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import kotlin.coroutines.AbstractCoroutineContextElement
-import kotlin.coroutines.CoroutineContext
 
 class MainViewModel(
     private val connectionInfoRepository: ConnectionInfoRepository,
@@ -50,8 +44,12 @@ class MainViewModel(
     private val _event = MutableSharedFlow<MainEvent>()
     val event: SharedFlow<MainEvent> = _event.asSharedFlow()
 
-    private val _alarmTime = MutableStateFlow(ServicePeriod.of().toUiModel())
-    val alarmTime: StateFlow<AlarmTime> = _alarmTime.asStateFlow()
+    val startTime: AlarmTime get() = AlarmTime(
+        ServicePeriod.of().let {
+            it.startTime.atDate(it.targetDate)
+        }
+
+    )
 
     private val _connectionLoadingState = MutableStateFlow(LoadingState.Loading)
     private val _serviceLoadingState = MutableStateFlow(LoadingState.Loading)
@@ -68,7 +66,6 @@ class MainViewModel(
     init {
         viewModelScope.launch {
             initServiceState()
-            delay(1000)
             setConnectionInfo()
         }
     }
@@ -127,8 +124,9 @@ class MainViewModel(
             } else {
                 _event.emit(MainEvent.START_SERVICE)
             }
-            serviceScheduleRepository.setServiceEnabledState(!_isServiceEnabled.value)
             _isServiceEnabled.emit(!_isServiceEnabled.value)
+            serviceScheduleRepository.setServiceEnabledState(!_isServiceEnabled.value)
+
         }
     }
 

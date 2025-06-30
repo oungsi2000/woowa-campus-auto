@@ -1,5 +1,6 @@
 package com.example.campus_auto.ext
 
+import android.content.Intent
 import com.example.campus_auto.uimodel.LoadingState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.time.LocalDateTime
 
 fun combineLoadingState(
     scope: CoroutineScope,
@@ -28,5 +30,7 @@ fun combineLoadingState(
     )
 }
 
-
+fun LocalDateTime.toEpochMilli():Long {
+    return this.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+}
 

@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Snackbar
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -56,7 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.campus_auto.ui.theme.CampusautoTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.campus_auto.MainViewModel
+import com.example.campus_auto.view.main.MainViewModel
 import com.example.campus_auto.R
 import com.example.campus_auto.ui.theme.Primary
 import com.example.campus_auto.ui.theme.PrimaryDanger

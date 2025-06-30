@@ -8,30 +8,23 @@ import java.time.LocalTime
 sealed class ServicePeriod(
     val startTime: LocalTime,
     val endTime: LocalTime,
+    open val targetDate: LocalDate
 ) : ServicePeriodRule by DefaultServicePeriodRule() {
-    abstract fun nextPeriod(): ServicePeriod
-
     data class GetOnWorkPeriod (
-        val targetDate: LocalDate
+        override val targetDate: LocalDate
     ): ServicePeriod(
         startTimeWhenGetOnWork,
         endTimeWhenGetOnWork,
-    ) {
-        override fun nextPeriod(): ServicePeriod {
-            return GetOffWorkPeriod(targetDate.nextWeekDay())
-        }
-    }
+        targetDate
+    )
 
     data class GetOffWorkPeriod(
-        val targetDate: LocalDate
+        override val targetDate: LocalDate
     ): ServicePeriod(
         startTimeWhenGetOffWork,
         endTimeWhenGetOffWork,
-    ) {
-        override fun nextPeriod(): ServicePeriod {
-            return GetOnWorkPeriod(targetDate.plusDays(1).nextWeekDay())
-        }
-    }
+        targetDate
+    )
 
     companion object : ServicePeriodRule by DefaultServicePeriodRule() {
         private fun LocalDate.nextWeekDay(): LocalDate {
@@ -55,10 +48,14 @@ sealed class ServicePeriod(
                 currentTime.toLocalTime().isAfter(endTimeWhenGetOnWork) &&
                 currentTime.toLocalTime().isBefore(endTimeWhenGetOffWork)
             ) {
-                GetOnWorkPeriod(
+                GetOffWorkPeriod(
                     currentTime.toLocalDate().nextWeekDay()
                 )
 
+            } else if (currentTime.toLocalTime().isAfter(endTimeWhenGetOffWork)) {
+                GetOnWorkPeriod(
+                    currentTime.toLocalDate().plusDays(1).nextWeekDay()
+                )
             } else {
                 GetOnWorkPeriod(
                     currentTime.toLocalDate().nextWeekDay()
