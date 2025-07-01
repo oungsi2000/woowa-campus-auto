@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.core.app.NotificationManagerCompat
 import com.example.campus_auto.BuildConfig
 import com.example.campus_auto.view.background.CampusAutoAlarmReceiver
@@ -26,9 +27,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        checkAppInstalled()
         setContent {
             LaunchedEffect(Unit) {
+                viewModel.hasAllPermission.collectLatest {
+                    if (!it) viewModel.stopService()
+                }
                 viewModel.event.collectLatest {
                     when (it) {
                         MainEvent.REQUEST_ACCESSIBILITY_PERMISSION -> {
@@ -59,6 +62,7 @@ class MainActivity : ComponentActivity() {
         viewModel.setPermissionState(
             hasAccessibilityPermission = hasAccessibilityPermission(),
             hasPostNotificationPermission = hasPostNotificationPermission(),
+            isAppInstalled = isAppInstalled()
         )
     }
 
@@ -72,22 +76,16 @@ class MainActivity : ComponentActivity() {
             CampusAutoAlarmReceiver.pendingIntent(this)
         )
     }
-
     private fun cancelAlarm() {
         val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(CampusAutoAlarmReceiver.pendingIntent(this))
     }
 
-    private fun checkAppInstalled() {
-        runCatching {
+    private fun isAppInstalled():Boolean {
+        return runCatching {
             packageManager.getPackageInfo(BuildConfig.CAMPUS_PACKAGE_NAME, PackageManager.GET_ACTIVITIES)
-        }.onSuccess {
-            viewModel.setAppInstalledState(true)
-        }.onFailure {
-            viewModel.setAppInstalledState(false)
-        }
+        }.getOrNull() != null
     }
-
 
     private fun hasAccessibilityPermission(): Boolean {
         val accessibilityManager = getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager

@@ -100,20 +100,17 @@ class MainViewModel(
     fun setPermissionState(
         hasAccessibilityPermission: Boolean,
         hasPostNotificationPermission: Boolean,
+        isAppInstalled: Boolean
     ) {
         viewModelScope.launch {
             _hasAccessibilityPermission = hasAccessibilityPermission
             _hasPostNotificationPermission = hasPostNotificationPermission
+            _isAppInstalled.emit(isAppInstalled)
             _hasAllPermission.emit(
                 hasAccessibilityPermission
                         && hasPostNotificationPermission
+                        && isAppInstalled
             )
-        }
-    }
-
-    fun setAppInstalledState(isAppInstalled: Boolean) {
-        viewModelScope.launch {
-            _isAppInstalled.emit(isAppInstalled)
         }
     }
 
@@ -127,6 +124,14 @@ class MainViewModel(
             _isServiceEnabled.emit(!_isServiceEnabled.value)
             serviceScheduleRepository.setServiceEnabledState(!_isServiceEnabled.value)
 
+        }
+    }
+
+    fun stopService() {
+        viewModelScope.launch {
+            _event.emit(MainEvent.STOP_SERVICE)
+            _isServiceEnabled.emit(false)
+            serviceScheduleRepository.setServiceEnabledState(false)
         }
     }
 
